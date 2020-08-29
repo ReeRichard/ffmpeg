@@ -1,0 +1,26 @@
+*.exe
+
+*.mp3
+
+*.mp4
+
+*.mkv
+
+*.zip
+
+*.dll
+
+*.jpg
+
+*.png
+
+*.tlb
+
+/audiobook merge to single file (The Dresden Files example) kit/*
+
+
+
+!audio_sniffer.dll
+!audio_sniffer-x64.dll
+!screen-capture-recorder.dll
+!screen-capture-recorder-x64.dll

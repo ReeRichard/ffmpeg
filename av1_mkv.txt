@@ -1,0 +1,24 @@
+https://trac.ffmpeg.org/wiki/Encode/AV1
+
+Constant Quality
+  ffmpeg -i input.mp4 -c:v libaom-av1 -crf 30 -b:v 0 -strict experimental av1_test.mkv
+
+Constrained Quality
+  ffmpeg -i input.mp4 -c:v libaom-av1 -crf 30 -b:v 2000k -strict experimental output.mkv
+
+
+don't use: -row-mt 1 -tiles 4x1
+it slows things down.
+
+
+
+
+call "ffmpeg.exe" -y -hide_banner -loglevel "info" -strict "experimental" -threads "16" -stats -fflags "+autobsf" -loop 1 -i "%FILE_IMAGE%" -i "%FILE_AUDIO%" -c:v libaom-av1 -preset ultrafast -crf 30 -b:v "0" -c:a copy -shortest -row-mt 1 -tiles 4x1 -vf "fifo,format=pix_fmts=yuv420p,fps=fps=25" %FILE_OUT%"
+
+note:
+it will first allocate 2.5GB or RAM before starting to encode.
+
+
+
+usually the process stops after first 18 frames and the CPU stays on 24%...
+better use H.265

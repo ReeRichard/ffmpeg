@@ -1,0 +1,72 @@
+@echo off
+
+call ffmpeg.exe -y -hide_banner -loglevel "info" -stats        ^
+-flags             "-loop+naq+low_delay+global_header"         ^
+-fflags            "-fastseek+genpts+discardcorrupt+discardcorrupt-fastseek-nofillin"  ^
+-flags2            "+fast+ignorecrop+showall+export_mvs"       ^
+-avoid_negative_ts "make_zero"                                 ^
+-analyzeduration   "2000000"                                   ^
+-threads 16                                                    ^
+-i "output.mp3"                                                ^
+-movflags          "+rtphint+dash+disable_chpl+faststart"      ^
+-map_metadata      "0" -write_id3v2 "1" -id3v2_version "3"     ^
+ ^
+-af "asetpts=PTS-STARTPTS,aresample=async=1:min_hard_comp=0.100000"  ^
+-c:a libmp3lame -b:a 128k -ar 44100                                  ^
+output_fixed.mp3
+
+pause
+
+
+
+
+set ARGS=%ARGS%  -y  -hide_banner  -loglevel "info"  -stats  -threads "2"  -strict "experimental"
+::flags
+  set ARGS=%ARGS% -flags              "+low_delay+global_header-unaligned-ilme-cgop-loop-output_corrupt"
+  set ARGS=%ARGS% -flags2             "+fast+ignorecrop+showall+export_mvs"
+  set ARGS=%ARGS% -fflags             "+ignidx+genpts+nofillin+discardcorrupt-fastseek"
+  set ARGS=%ARGS% -movflags           "+faststart+disable_chpl"
+  set ARGS=%ARGS% -avoid_negative_ts  "make_zero"
+::ignore invalid data
+  set ARGS=%ARGS% -ignore_unknown
+::start/finish
+  set ARGS=%ARGS% -ss "00:00:00.001"
+::set ARGS=%ARGS% -to "00:00:05.000"
+::meta data processing
+  set ARGS=%ARGS% -map_chapters  "-1"
+  set ARGS=%ARGS% -map_metadata  "-1"
+::explicit "audio only" mode
+  set ARGS=%ARGS% -sn -vn
+::audio processing
+  set ARGS=%ARGS% -af "asetpts=PTS-STARTPTS,aresample=async=1:min_hard_comp=0.100000" -vsync "1"
+::audio quality
+  set ARGS=%ARGS% -b:a 256k -ar 44100
+
+
+
+
+
+
+::call ffmpeg -hide_banner -y -i "%INPUT%" -crf 25 -preset ultrafast -c:a copy -vf "fifo,pad=width=ih*16/9:height=ih:x=(ow-iw)/2:y=(oh-ih)/2:color=#00000000,scale=-2:1080,hqdn3d" "%OUTPUT%" 
+::call ffmpeg -hide_banner -y -i "%INPUT%" -c:v libx265 -crf 26 -preset ultrafast -c:a copy -vf "fifo,pad=width=ih*16/9:height=ih:x=(ow-iw)/2:y=(oh-ih)/2:color=#00000000,scale=-2:1080,hqdn3d" "%OUTPUT%" 
+::-strict "experimental" 
+::-threads 16 
+::-err_detect ignore_err    -----error DETECTION FLAG.
+::-movflags "+faststart"    -----only needed for '.MP4' output-files.
+
+call ffmpeg -hide_banner -y -flags "-output_corrupt" -fflags "+discardcorrupt" -flags2 "+ignorecrop" -i "%INPUT%" -c:v libx265 -c:a copy -crf 26 -preset ultrafast -vf "fifo,setpts=PTS-STARTPTS,format=yuv420p,crop=trunc(in_w/2)*2:trunc(in_h/2)*2,setdar=16/9,scale=1920:1080,nlmeans=s=20.0" "%OUTPUT%"
+
+set "EXIT_CODE=%ErrorLevel%"
+
+title [DONE] %~nx1
+
+pause
+
+
+
+
+
+
+"-y -hide_banner -err_detect ignore_err -stats -threads 16 -loglevel info -strict experimental -flags -output_corrupt -fflags +autobsf+discardcorrupt -flags2 +ignorecrop -loop 1 -i \"##INPUT_IMAGE##\" -i \"##INPUT_AUDIO##\" -movflags +faststart+rtphint+dash+cmaf+empty_moov+frag_every_frame+frag_keyframe+separate_moof -zerolatency 1 -tune zerolatency -c:a ##ENCODER_AUDIO## -c:v ##ENCODER_VIDEO## -preset ultrafast -crf 30 -b:v 0 -row-mt 1 -shortest -vf fifo,format=pix_fmts=yuv420p,fps=fps=25 \"##OUTPUT_VIDEO##\""
+                     ,"__INFO__"      : "the execute (in the resource-folder) and its arguments. you may try avidemux/mkvtoolnix/handbrake and an alternative command-line template.  exe.exe is a wrap around Windows ShellExecuteW."
+                    }
